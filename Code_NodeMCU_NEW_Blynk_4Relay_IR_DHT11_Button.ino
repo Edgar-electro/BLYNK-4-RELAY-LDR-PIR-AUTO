@@ -1,7 +1,6 @@
-#define BLYNK_TEMPLATE_ID "TMPL2oadSNTv"
-#define BLYNK_TEMPLATE_NAME "Relaycontrol"
-#define BLYNK_AUTH_TOKEN "iTiuwS4Q0amUatayVaSidZEvlokZrMbZ"
-
+#define BLYNK_TEMPLATE_ID ""
+#define BLYNK_TEMPLATE_NAME "pir test"
+#define BLYNK_AUTH_TOKEN ""
 
 
 
@@ -35,7 +34,7 @@ Preferences pref;
 #define wifiLed   16   //D2
 #define DHTPIN   3 //D18  pin connected with DHT
 #define LDR_PIN   A0 // VN pin connected with LDR
-#define pirsensorpin  12
+#define PIR_PIN   12
 
 
 
@@ -49,6 +48,7 @@ Preferences pref;
 #define VPIN_HUMIDITY    V7
 #define VPIN_LDR         V0
 #define VPIN_PIR         V8
+#define VPIN_PIR_ACTIV   V9
 // Uncomment whatever type you're using!
 //#define DHTTYPE DHT11     // DHT 11
 #define DHTTYPE DHT22   // DHT 22, AM2302, AM2321
@@ -56,11 +56,12 @@ Preferences pref;
 
 
 // Relay State
+
 bool toggleState_1 = LOW; //Define integer to remember the toggle state for relay 1
 bool toggleState_2 = LOW; //Define integer to remember the toggle state for relay 2
 bool toggleState_3 = LOW; //Define integer to remember the toggle state for relay 3
 bool toggleState_4 = LOW; //Define integer to remember the toggle state for relay 4
-
+bool pirButtState  = LOW;
 // Switch State
 bool SwitchState_1 = LOW;
 bool SwitchState_2 = LOW;
@@ -71,12 +72,10 @@ float temperature1 = 0;
 float humidity1   = 0;
 float ldrVal = 0;
 int wifiFlag = 0;
-int pirValue;
+float pirVal = 0;
 
 const int maxLight = 50;
-const int minLight = 10;
-
-
+const int minLight = 7;
 
 
 
@@ -89,6 +88,11 @@ char auth[] = BLYNK_AUTH_TOKEN;
 BlynkTimer timer;
 
 // When App button is pushed - switch the state
+BLYNK_WRITE(VPIN_PIR_ACTIV) {
+  pirButtState = param.asInt();
+digitalWrite(RelayPin3, !toggleState_3);
+  pref.putBool("Relay3", toggleState_3);
+}
 
 BLYNK_WRITE(VPIN_BUTTON_1) {
   toggleState_1 = param.asInt();
@@ -139,17 +143,18 @@ BLYNK_CONNECTED() {
   Blynk.virtualWrite(VPIN_BUTTON_2, toggleState_2);
   Blynk.virtualWrite(VPIN_BUTTON_3, toggleState_3);
   Blynk.virtualWrite(VPIN_BUTTON_4, toggleState_4);
-
+                     
   Blynk.syncVirtual(VPIN_TEMPERATURE);
   Blynk.syncVirtual(VPIN_HUMIDITY);
   Blynk.syncVirtual(VPIN_LDR);
+  Blynk.syncVirtual (VPIN_PIR);
 }
 
 void readSensor() {
   ldrVal = analogRead(LDR_PIN);
  ldrVal = map(ldrVal, 0, 1023, 0, 100);
   Serial.print("LDR - "); Serial.println(ldrVal);
- pirValue = digitalRead(pirsensorpin);
+ pirVal = digitalRead(PIR_PIN);
   
   float h = dht.readHumidity();
   float t = dht.readTemperature(); // or dht.readTemperature(true) for Fahrenheit
@@ -163,7 +168,7 @@ void readSensor() {
     temperature1 = t;
     Serial.print("Temperature - "); Serial.println(t);
     Serial.print("Humidity - "); Serial.println(h);
-    Serial.print("PIRSensor - "); Serial.println(pirValue);
+    Serial.print("PIRSensor - "); Serial.println(pirVal);
   }
 }
 
@@ -175,7 +180,7 @@ void sendSensor()
   Blynk.virtualWrite(VPIN_TEMPERATURE, temperature1);
   Blynk.virtualWrite(VPIN_HUMIDITY, humidity1);
   Blynk.virtualWrite(VPIN_LDR, ldrVal);
-  Blynk.virtualWrite(VPIN_PIR, pirValue);   
+  Blynk.virtualWrite(VPIN_PIR, pirVal);   
 }
 
 void manual_control()
@@ -261,6 +266,12 @@ void getRelayState()
   digitalWrite(RelayPin4, !toggleState_4);
   Blynk.virtualWrite(VPIN_BUTTON_4, toggleState_4);
   delay(200);
+
+  
+
+
+
+
 }
 
 void setup()
@@ -268,7 +279,7 @@ void setup()
   Serial.begin(115200);;
   //Open namespace in read-write mode
   pref.begin("Relay_State", false);
-  pinMode(pirsensorpin, INPUT);
+  pinMode(PIR_PIN, INPUT);
   pinMode(RelayPin1, OUTPUT);
   pinMode(RelayPin2, OUTPUT);
   pinMode(RelayPin3, OUTPUT);
@@ -333,8 +344,17 @@ void loop()
           }
       } 
     
-  
-  
+  if (pirButtState == 1) {
+    if (pirVal == 0) {
+      digitalWrite(RelayPin3, HIGH);
+    Blynk.virtualWrite(VPIN_BUTTON_3, pirVal);
+    
+    } else if (pirVal == 1) {
+       
+      digitalWrite(RelayPin3, LOW);
+    Blynk.virtualWrite(VPIN_BUTTON_3, pirVal);
+    }
+  }
   Blynk.run();
   timer.run(); // Initiates SimpleTimer
 
