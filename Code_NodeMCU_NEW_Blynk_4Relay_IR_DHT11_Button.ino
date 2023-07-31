@@ -1,6 +1,6 @@
-#define BLYNK_TEMPLATE_ID ""
+#define BLYNK_TEMPLATE_ID "TMPL5lPXsC035"
 #define BLYNK_TEMPLATE_NAME "pir test"
-#define BLYNK_AUTH_TOKEN ""
+#define BLYNK_AUTH_TOKEN "hT1s37PfB0cZqQDZDWO-9s-D8EMfo9HH"
 
 
 
@@ -23,13 +23,13 @@ Preferences pref;
 // define the GPIO connected with Relays and switches
 #define RelayPin1 5  //d1
 #define RelayPin2 4 //d2
-#define RelayPin3 0  //d5 
+#define RelayPin3 0  //d3 
 #define RelayPin4 2  //D4
 
-#define SwitchPin1 10  //sd3
-#define SwitchPin2 14  //D3
+#define SwitchPin1 15  //d8
+#define SwitchPin2 14  //D5
 #define SwitchPin3 13  //D7
-
+#define SwitchPin4 16
 
 #define wifiLed   16   //D2
 #define DHTPIN   3 //D18  pin connected with DHT
@@ -67,6 +67,13 @@ bool SwitchState_1 = LOW;
 bool SwitchState_2 = LOW;
 bool SwitchState_3 = LOW;
 bool SwitchState_4 = LOW;
+
+bool lastSwitchState_1 = HIGH;
+bool lastSwitchState_2 = HIGH;
+bool lastSwitchState_3 = HIGH;
+bool lastSwitchState_4 = HIGH;
+
+
 
 float temperature1 = 0;
 float humidity1   = 0;
@@ -183,57 +190,34 @@ void sendSensor()
   Blynk.virtualWrite(VPIN_PIR, pirVal);   
 }
 
-void manual_control()
-{
-  if (digitalRead(SwitchPin1) == LOW && SwitchState_1 == LOW) {
-    digitalWrite(RelayPin1, LOW);
-    toggleState_1 = HIGH;
-    SwitchState_1 = HIGH;
-    pref.putBool("Relay1", toggleState_1);
-    Blynk.virtualWrite(VPIN_BUTTON_1, toggleState_1);
-    Serial.println("Switch-1 on");
-  }
-  if (digitalRead(SwitchPin1) == HIGH && SwitchState_1 == HIGH) {
-    digitalWrite(RelayPin1, HIGH);
-    toggleState_1 = LOW;
-    SwitchState_1 = LOW;
-    pref.putBool("Relay1", toggleState_1);
-    Blynk.virtualWrite(VPIN_BUTTON_1, toggleState_1);
-    Serial.println("Switch-1 off");
-  }
-  if (digitalRead(SwitchPin2) == LOW && SwitchState_2 == LOW) {
-    digitalWrite(RelayPin2, LOW);
-    toggleState_2 = HIGH;
-    SwitchState_2 = HIGH;
-    pref.putBool("Relay2", toggleState_2);
-    Blynk.virtualWrite(VPIN_BUTTON_2, toggleState_2);
-    Serial.println("Switch-2 on");
-  }
-  if (digitalRead(SwitchPin2) == HIGH && SwitchState_2 == HIGH) {
-    digitalWrite(RelayPin2, HIGH);
-    toggleState_2 = LOW;
-    SwitchState_2 = LOW;
-    pref.putBool("Relay2", toggleState_2);
-    Blynk.virtualWrite(VPIN_BUTTON_2, toggleState_2);
-    Serial.println("Switch-2 off");
-  }
-  if (digitalRead(SwitchPin3) == LOW && SwitchState_3 == LOW) {
-    digitalWrite(RelayPin3, LOW);
-    toggleState_3 = HIGH;
-    SwitchState_3 = HIGH;
-    pref.putBool("Relay3", toggleState_3);
-    Blynk.virtualWrite(VPIN_BUTTON_3, toggleState_3);
-    Serial.println("Switch-3 on");
-  }
-  if (digitalRead(SwitchPin3) == HIGH && SwitchState_3 == HIGH) {
-    digitalWrite(RelayPin3, HIGH);
-    toggleState_3 = LOW;
-    SwitchState_3 = LOW;
-    pref.putBool("Relay3", toggleState_3);
-    Blynk.virtualWrite(VPIN_BUTTON_3, toggleState_3);
-    Serial.println("Switch-3 off");
-  }
+void manual_control(){
   
+SwitchState_2 = digitalRead(SwitchPin2);
+  if (SwitchState_2 == LOW && lastSwitchState_2 == HIGH) {
+    toggleState_2 = !toggleState_2;
+    digitalWrite(RelayPin2, toggleState_2);
+ } 
+  lastSwitchState_2 = SwitchState_2;
+
+
+  // Обработка второй кнопки
+  SwitchState_3 = digitalRead(SwitchPin3);
+  if (SwitchState_3 == LOW && lastSwitchState_3 == HIGH) {
+    toggleState_3 = !toggleState_3;
+    digitalWrite(RelayPin3, toggleState_3);
+ } 
+  lastSwitchState_3 = SwitchState_3;
+
+
+SwitchState_4 = digitalRead(SwitchPin4);
+  if (SwitchState_4 == LOW && lastSwitchState_4 == HIGH) {
+    toggleState_4 = !toggleState_4;
+    digitalWrite(RelayPin4, toggleState_4);
+  
+   }
+  lastSwitchState_4 = SwitchState_4;
+  
+ 
 }
 
 
