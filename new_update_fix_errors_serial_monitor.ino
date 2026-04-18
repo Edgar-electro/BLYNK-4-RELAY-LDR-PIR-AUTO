@@ -346,7 +346,7 @@ void setup() {
   Serial.println("========== BOOT ==========");
 
   pinMode(PIR_PIN, INPUT);
-  pinMode(DHTPIN, INPUT);
+  
 
   for (uint8_t i = 0; i < 4; i++) {
     pinMode(relayPins[i], OUTPUT);
