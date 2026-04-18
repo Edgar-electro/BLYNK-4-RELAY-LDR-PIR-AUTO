@@ -244,7 +244,7 @@ void manualControl() {
     }
   }
 
-
+}
 // -------------------- Connectivity --------------------
 void handleConnectivity() {
   if (WiFi.status() != WL_CONNECTED) {
