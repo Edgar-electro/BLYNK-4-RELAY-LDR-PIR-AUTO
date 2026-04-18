@@ -1,6 +1,6 @@
-#define BLYNK_TEMPLATE_ID "TMPL5lPXsC035"
+#define BLYNK_TEMPLATE_ID "TMPL5lPXsC03"
 #define BLYNK_TEMPLATE_NAME "pir test"
-#define BLYNK_AUTH_TOKEN "hT1s37PfB0cZqQDZDWO-9s-D8EMfo9HH"
+#define BLYNK_AUTH_TOKEN "hT1s37PfB0cZqQDZDWO9s-D8EMfo9HH"
 #define BLYNK_PRINT Serial
 
 #include <ESP8266WiFi.h>
@@ -269,7 +269,7 @@ void setup() {
   EEPROM.begin(64);
 
   pinMode(PIR_PIN, INPUT);
-  pinMode(DHTPIN, INPUT);
+ 
 
   for (uint8_t i = 0; i < 4; i++) {
     pinMode(relayPins[i], OUTPUT);
